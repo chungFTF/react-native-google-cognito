@@ -1,4 +1,12 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import {
+  Image,
+  StyleSheet,
+  Platform,
+  Linking,
+  Button,
+  Text,
+  View,
+} from 'react-native';
 import { useEffect, useState } from "react";
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -6,7 +14,6 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { CognitoHostedUIIdentityProvider } from '@aws-amplify/auth';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
-import { Button, Linking, Text, View } from 'react-native';
 import { Amplify, Auth, Hub } from "aws-amplify";
 
 Amplify.Logger.LOG_LEVEL = "DEBUG"
@@ -28,7 +35,6 @@ async function urlOpener(url: string, redirectUrl: string): Promise<void> {
 
 Amplify.configure({
   Auth: {
-
     // REQUIRED - Amazon Cognito Region
     region: 'us-east-1',
 
@@ -55,8 +61,6 @@ Amplify.configure({
 
 // You can get the current config object
 const currentConfig = Auth.configure();
-
-  
   
 function App() {
   const [user, setUser] = useState(null);
@@ -93,7 +97,6 @@ function App() {
     const user = await Auth.currentAuthenticatedUser();
     console.log("USER = ", user)
   }
-  
 
   return (
     <View>
@@ -102,14 +105,9 @@ function App() {
         <Button title="Sign Out" onPress={() => Auth.signOut()} />
       ) : (
         <>
-          {/* Go to the Cognito Hosted UI */}
           <Button title="Cognito" onPress={() => Auth.federatedSignIn()} />
-
-          {/* Go directly to a configured identity provider */}
-          <Button title="Facebook" onPress={() => Auth.federatedSignIn({ provider: CognitoHostedUIIdentityProvider.Facebook })} />
           <Button title="222" onPress={() => Auth.federatedSignIn({ provider: CognitoHostedUIIdentityProvider.Google })}  />
           <Button title="1111" onPress={() => getGoogleClick()} />
-          <Button title="Amazon" onPress={() => Auth.federatedSignIn({ provider: CognitoHostedUIIdentityProvider.Amazon })} />
         </>
       )}
     </View>
@@ -117,46 +115,3 @@ function App() {
 }
 
 export default App;
-  
-  
-
-// export default function HomeScreen() {
- 
-//   return (
-// <View>
-//       <Text>User: {user ? JSON.stringify(user.attributes) : 'None'}</Text>
-//       {user ? (
-//         <Button title="Sign Out" onPress={() => Auth.signOut()} />
-//       ) : (
-//         <>
-//           {/* Go to the Cognito Hosted UI */}
-//           <Button title="Cognito" onPress={() => Auth.federatedSignIn()} />
-
-//           {/* Go directly to a configured identity provider */}
-        
-//           <Button title="Google" onPress={() => Auth.federatedSignIn({ provider: CognitoHostedUIIdentityProvider.Google })}  />
-        
-//         </>
-//       )}
-//     </View>
-//   );
-// }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
