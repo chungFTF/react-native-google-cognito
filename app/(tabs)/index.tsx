@@ -1,133 +1,65 @@
-// import React, { useEffect, useState } from "react";
-// import {
-//   Button,
-//   SafeAreaView,
-//   Text,
-// } from "react-native";
-
-// import { AuthUser, getCurrentUser, signInWithRedirect, signOut } from "@aws-amplify/auth";
-// import { Hub } from "@aws-amplify/core";
-
-
-// function App(): JSX.Element {
-//   const [user, setUser] = useState<AuthUser | null>(null);
-//   const [error, setError] = useState<unknown>(null);
-//   const [customState, setCustomState] = useState<string | null>(null);
-
-//   useEffect(() => {
-//     const unsubscribe = Hub.listen("auth", ({ payload }) => {
-//       switch (payload.event) {
-//         case "signInWithRedirect":
-//           getUser();
-//           break;
-//         case "signInWithRedirect_failure":
-//           setError("An error has occurred during the OAuth flow.");
-//           break;
-//         case "customOAuthState":
-//           setCustomState(payload.data); // this is the customState provided on signInWithRedirect function
-//           break;
-//       }
-//     });
-
-//     getUser();
-
-//     return unsubscribe;
-//   }, []);
-  
-//   const getUser = async (): Promise<void> => {
-//     try {
-//       const currentUser = await getCurrentUser();
-//       setUser(currentUser);
-//     } catch (error) {
-//       console.error(error);
-//       console.log("Not signed in");
-//     }
-//   };
-
-//   return (
-//     <SafeAreaView>
-//       <Button title="Sign In" onPress={() => signInWithRedirect({ provider: "google"})}></Button>
-//       <Text>{user?.username}</Text>
-//       <Text>{customState}</Text>
-//       <Button title="Sign Out" onPress={() => signOut()}></Button>
-//     </SafeAreaView>
-//   );
-// }
-
-
 import { Image, StyleSheet, Platform } from 'react-native';
 import { useEffect, useState } from "react";
-// import { HelloWave } from '@/components/HelloWave';
-// import ParallaxScrollView from '@/components/ParallaxScrollView';
-// import { ThemedText } from '@/components/ThemedText';
-// import { ThemedView } from '@/components/ThemedView';
+import { HelloWave } from '@/components/HelloWave';
+import ParallaxScrollView from '@/components/ParallaxScrollView';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
 import { CognitoHostedUIIdentityProvider } from '@aws-amplify/auth';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import { Button, Linking, Text, View } from 'react-native';
-import * as WebBrowser from 'expo-web-browser';
 import { Amplify, Auth, Hub } from "aws-amplify";
 
 Amplify.Logger.LOG_LEVEL = "DEBUG"
 
-// async function urlOpener(url: string, redirectUrl: string): Promise<void> {
-//   await InAppBrowser.isAvailable();
-//   const authSessionResult = await InAppBrowser.openAuth(url, redirectUrl, {
-//     showTitle: false,
-//     enableUrlBarHiding: true,
-//     enableDefaultShare: false,
-//     ephemeralWebSession: false,
-//   });
-//   console.log("authSessionResult = ", authSessionResult)
-//   if (authSessionResult.type === 'success') {
-//     Linking.openURL(authSessionResult.url);
-//   }
-// }
+async function urlOpener(url: string, redirectUrl: string): Promise<void> {
+  await InAppBrowser.isAvailable();
+  const authSessionResult = await InAppBrowser.openAuth(url, redirectUrl, {
+    showTitle: false,
+    enableUrlBarHiding: true,
+    enableDefaultShare: false,
+    ephemeralWebSession: false,
+  });
 
-function App() {
+  if (authSessionResult.type === 'success') {
+    Linking.openURL(authSessionResult.url);
+  }
+}
+
+
 Amplify.configure({
   Auth: {
+
     // REQUIRED - Amazon Cognito Region
-    region: 'us-east-2',
+    region: 'us-east-1',
+
     // OPTIONAL - Amazon Cognito User Pool ID
-    userPoolId: 'us-east-2_NAMeNcssO',
+    userPoolId: 'us-east-1_zWOf1kIft',
+
     // OPTIONAL - Amazon Cognito Web Client ID (26-char alphanumeric string)
-    userPoolWebClientId: '5cc725gen2j2ilr10a6llhg6nf',
+    userPoolWebClientId: 'ugutdlestbafg0m7qclit8ujm',
+
 
     // OPTIONAL - Hosted UI configuration
     oauth: {
-      domain: 'pingtzu-google.auth.us-east-2.amazoncognito.com',
+      domain: 'ptzu-amplify.auth.us-east-1.amazoncognito.com',
       scope: [
-        'profile',
         'email',
         'openid'
       ],
-      redirectSignIn: 'https://www.amazon.com',
+      redirectSignIn: 'https://www.amazon.com/',
       redirectSignOut: 'https://management.ntu.edu.tw/IM',
-      responseType: 'code', // or 'token', note that REFRESH token will only be generated when the responseType is code
-      urlOpener: async (url, redirectUrl) => {
-        try {
-          const res = await WebBrowser.openAuthSessionAsync(url, redirectUrl, {
-            showTitle: false,
-            // enableUrlBarHiding: true,
-            enableDefaultShare: false,
-            ephemeralWebSession: false,
-            preferEphemeralSession: true
-          });
-          console.log("RESPNSE ===", res)
-        } catch(error){
-          console.log("ERRORRRRR ====", error)
-        }
+      responseType: 'code' // or 'token', note that REFRESH token will only be generated when the responseType is code
     }
-  }
   }
 });
 
 // You can get the current config object
 const currentConfig = Auth.configure();
-console.log("ALOHA currentConfig = ", currentConfig)
 
-
-const [user, setUser] = useState(null);
+  
+  
+function App() {
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     Hub.listen('auth', ({ payload: { event, data } }) => {
