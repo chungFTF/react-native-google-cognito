@@ -1,20 +1,14 @@
 import {
-  Image,
-  StyleSheet,
-  Platform,
   Linking,
   Button,
   Text,
   View,
 } from 'react-native';
 import { useEffect, useState } from "react";
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 import { CognitoHostedUIIdentityProvider } from '@aws-amplify/auth';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import { Amplify, Auth, Hub } from "aws-amplify";
+import * as WebBrowser from 'expo-web-browser';
 
 Amplify.Logger.LOG_LEVEL = "DEBUG"
 
@@ -36,26 +30,61 @@ async function urlOpener(url: string, redirectUrl: string): Promise<void> {
 Amplify.configure({
   Auth: {
     // REQUIRED - Amazon Cognito Region
-    region: 'us-east-1',
+    region: 'us-east-2',
 
     // OPTIONAL - Amazon Cognito User Pool ID
-    userPoolId: 'us-east-1_zWOf1kIft',
+    userPoolId: 'us-east-2_NAMeNcssO',
 
     // OPTIONAL - Amazon Cognito Web Client ID (26-char alphanumeric string)
-    userPoolWebClientId: 'ugutdlestbafg0m7qclit8ujm',
-
+    userPoolWebClientId: '5cc725gen2j2ilr10a6llhg6nf',
 
     // OPTIONAL - Hosted UI configuration
     oauth: {
-      domain: 'ptzu-amplify.auth.us-east-1.amazoncognito.com',
+      domain: 'ptzu-google-test.auth.us-east-2.amazoncognito.com',
       scope: [
+        'profile',
         'email',
         'openid'
       ],
-      redirectSignIn: 'https://www.amazon.com/',
+      redirectSignIn: 'https://www.amazon.com',
       redirectSignOut: 'https://management.ntu.edu.tw/IM',
-      responseType: 'code' // or 'token', note that REFRESH token will only be generated when the responseType is code
-    }
+      responseType: 'token', // or 'token', note that REFRESH token will only be generated when the responseType is code
+      signUpVerificationMethod: 'code',
+      urlOpener: async (url, redirectUrl) => {
+        try {
+          const res = await WebBrowser.openAuthSessionAsync(url, redirectUrl, {
+            showTitle: false,
+            enableUrlBarHiding: true,
+            enableDefaultShare: false,
+            ephemeralWebSession: false,
+            preferEphemeralSession: true
+          });
+          console.log('res: ', res);
+        } catch(error) {
+          console.log("ERROR in browser = ", errpr)
+        }
+  
+        
+        // try {
+        //   const res = await WebBrowser.openAuthSessionAsync(url, redirectUrl, {
+        //     showTitle: false,
+        //     // enableUrlBarHiding: true,
+        //     enableDefaultShare: false,
+        //     ephemeralWebSession: false,
+        //     preferEphemeralSession: true
+        //   }).then((data) => {
+        //     console.log("data in web broweser = ", data);
+        //     console.log("url in web browser = ", url);
+        //     console.log("redirectUrl in web browser = ", redirectUrl)
+        //   });
+
+              
+        //   console.log("RESPNSE ===", res)
+        // } catch(error){
+        //   console.log("ERRORRRRR ====", error)
+        // }
+    },
+  }
   }
 });
 
@@ -93,21 +122,33 @@ function App() {
   
   async function getGoogleClick(){
     console.log("google clicking")
-    await Auth.federatedSignIn({ provider: CognitoHostedUIIdentityProvider.Google });
+    
+    let creds = await Auth.federatedSignIn({
+      provider: CognitoHostedUIIdentityProvider.Google,
+    });
+    
+    console.log("google clicking #1 - creds: ", creds)
+    
     const user = await Auth.currentAuthenticatedUser();
+    
+    console.log("google clicking #2")
+    
     console.log("USER = ", user)
   }
 
   return (
     <View>
+      <Text>DUMMY</Text>
+      <Text>DUMMY</Text>
+      <Text>DUMMY</Text>
       <Text>User: {user ? JSON.stringify(user.attributes) : 'None'}</Text>
       {user ? (
         <Button title="Sign Out" onPress={() => Auth.signOut()} />
       ) : (
         <>
           <Button title="Cognito" onPress={() => Auth.federatedSignIn()} />
-          <Button title="222" onPress={() => Auth.federatedSignIn({ provider: CognitoHostedUIIdentityProvider.Google })}  />
-          <Button title="1111" onPress={() => getGoogleClick()} />
+          <Button title="Google" onPress={() => Auth.federatedSignIn({ provider: CognitoHostedUIIdentityProvider.Google })}  />
+          <Button title="Custom Google" onPress={() => getGoogleClick()} />
         </>
       )}
     </View>
@@ -115,3 +156,7 @@ function App() {
 }
 
 export default App;
+
+
+
+https://mydomain.us-east-1.amazoncognito.com/login?response_type=code&client_id=1example23456789&redirect_uri=https://www.example.com
